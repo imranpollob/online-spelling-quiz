@@ -124,7 +124,7 @@ export default function Quiz() {
               </div>
               <div className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-primary-500 to-purple-600 transition-all duration-500 ease-out"
+                  className="h-full bg-gradient-to-r from-primary-500 to-brand-400 transition-all duration-500 ease-out"
                   style={{ width: `${((totalQuestions - words.length) / totalQuestions) * 100}%` }}
                 />
               </div>
@@ -157,7 +157,7 @@ export default function Quiz() {
 
               <div className="flex flex-col sm:flex-row gap-3 mt-6">
                 <button
-                  className="btn flex items-center justify-center gap-2 flex-1 bg-indigo-100 hover:bg-indigo-200 dark:bg-indigo-900/40 dark:hover:bg-indigo-900/60 text-indigo-800 dark:text-indigo-100"
+                  className="btn flex items-center justify-center gap-2 flex-1 bg-brand-100 hover:bg-brand-200 dark:bg-brand-900/40 dark:hover:bg-brand-900/60 text-brand-900 dark:text-brand-100"
                   onClick={() => handlePlayAgain()}
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

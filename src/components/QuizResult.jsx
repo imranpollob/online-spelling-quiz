@@ -31,7 +31,7 @@ export default function QuizResult(props) {
       <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700 mb-6">
         <table className="w-full">
           <thead>
-            <tr className="bg-gradient-to-r from-primary-500 to-purple-600 text-white">
+            <tr className="bg-gradient-to-r from-primary-600 to-brand-700 text-white">
               <th className="px-6 py-4 text-left font-semibold">Correct Word</th>
               <th className="px-6 py-4 text-left font-semibold">Your Answer</th>
               <th className="px-6 py-4 text-center font-semibold">Result</th>
