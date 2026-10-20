@@ -1,4 +1,6 @@
 import { db } from './firebase';
+import wordPolicy from '../data/wordPolicy.js';
+import curationPlanner from '../data/curationPlan.js';
 import {
   collection,
   getDocs,
@@ -9,11 +11,22 @@ import {
   doc,
   query,
   where,
-  limit
+  limit,
+  writeBatch,
+  serverTimestamp
 } from 'firebase/firestore';
 
 const WORDS_COLLECTION = 'words';
 const ADMIN_EMAIL = 'polboy777@gmail.com';
+const { curateWord, policy, normalizeAnswer } = wordPolicy;
+const { buildCurationPlan } = curationPlanner;
+
+function invalidateWordCache() {
+  if (typeof sessionStorage === 'undefined') return;
+  for (const key of Object.keys(sessionStorage)) {
+    if (key.startsWith('words_cache_')) sessionStorage.removeItem(key);
+  }
+}
 
 /**
  * Get all words from Firestore (global + user-specific)
@@ -26,9 +39,10 @@ export async function getAllWords(userId = null) {
     const allWords = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
     // Filter: return global words + words created by this user
-    return allWords.filter(word =>
-      word.isGlobal || word.userId === userId
-    );
+    return allWords.filter(word => !word.archived &&
+      !(word.isGlobal && Object.prototype.hasOwnProperty.call(policy.retired, normalizeAnswer(word.word))) &&
+      (word.isGlobal || (userId && word.userId === userId))
+    ).map(curateWord);
   } catch (error) {
     console.error('Error fetching words:', error);
     throw error;
@@ -117,16 +131,22 @@ export async function addWord(wordData, userId, userEmail) {
 
     // Check if user is admin
     const isAdmin = userEmail === ADMIN_EMAIL;
+    const original = normalizeAnswer(wordData.word);
+    if (Object.prototype.hasOwnProperty.call(policy.retired, original) && (isAdmin || original !== 'abbas')) {
+      throw new Error(policy.retired[original]);
+    }
 
+    const curated = curateWord({ ...wordData, isGlobal: isAdmin });
     const wordDocument = {
       ...wordData,
-      word: wordData.word.toLowerCase().trim(),
+      ...curated,
+      word: curated.word,
       addedDate: new Date(),
       source: isAdmin ? 'admin' : 'user-contributed',
       verified: isAdmin, // Admin words are auto-verified
       usageCount: 0,
       category: wordData.category || 'custom',
-      difficulty: wordData.difficulty || 'intermediate',
+      difficulty: curated.difficulty,
       // Access control fields
       isGlobal: isAdmin, // Only admin words are global
       userId: isAdmin ? null : userId, // Admin words don't have userId
@@ -135,11 +155,29 @@ export async function addWord(wordData, userId, userEmail) {
 
     await setDoc(newDocRef, wordDocument);
 
-    return { id: newDocRef.id, ...wordData };
+    return { id: newDocRef.id, ...wordDocument };
   } catch (error) {
     console.error('Error adding word:', error);
     throw error;
   }
+}
+
+/** Idempotent admin import: update existing IDs, archive duplicates, add only missing words. */
+export async function syncCuratedSharedWords(wordList) {
+  const snapshot = await getDocs(query(collection(db, WORDS_COLLECTION), where('isGlobal', '==', true)));
+  const records = snapshot.docs.map(item => ({ ...item.data(), id: item.id }));
+  const plan = buildCurationPlan(records, wordList);
+  for (let index = 0; index < plan.length; index += 400) {
+    const batch = writeBatch(db);
+    for (const change of plan.slice(index, index + 400)) {
+      const ref = doc(db, WORDS_COLLECTION, change.id);
+      if (change.kind === 'create') batch.set(ref, { ...change.fields, addedDate: serverTimestamp() }, { merge: true });
+      else batch.update(ref, change.fields);
+    }
+    await batch.commit();
+    invalidateWordCache();
+  }
+  return { totalImported: plan.filter(change => change.kind === 'create').length, totalUpdated: plan.filter(change => change.kind === 'update').length, totalArchived: plan.filter(change => change.kind === 'archive').length };
 }
 
 /**

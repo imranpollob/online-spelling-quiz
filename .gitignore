@@ -2,6 +2,9 @@
 
 # dependencies
 /node_modules
+/.venv-audio/
+/.word-curation-backups/
+__pycache__/
 /.pnp
 .pnp.js
 

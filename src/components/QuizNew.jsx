@@ -4,6 +4,9 @@ export default function QuizNew({
   totalQuestions,
   setTotalQuestions,
   handleStartQuiz,
+  practiceSet = "spelling",
+  setPracticeSet,
+  availableCount = 0,
 }) {
   return (
     <div className="min-h-[calc(100vh-73px)] flex items-center justify-center p-6 animate-fade-in">
@@ -11,11 +14,22 @@ export default function QuizNew({
         <div className="text-center space-y-6">
           <h2 className="text-3xl font-bold text-gradient">Start Your Quiz</h2>
 
+          <div className="space-y-3 text-left">
+            <label htmlFor="practice-set" className="block font-semibold text-slate-700 dark:text-slate-200">Practice set</label>
+            <select id="practice-set" value={practiceSet} onChange={(event) => setPracticeSet(event.target.value)} className="w-full px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">
+              <option value="spelling">Core spelling</option>
+              <option value="warmup">Beginner warm-up</option>
+              <option value="vocabulary">Advanced vocabulary</option>
+            </select>
+            <p className="text-sm text-slate-500 dark:text-slate-400">{availableCount} {availableCount === 1 ? "word" : "words"} available. Homophones and phrases are reserved for practice with a definition or sentence.</p>
+          </div>
+
           <div className="space-y-3">
             <label htmlFor="totalQuestions" className="block text-lg font-semibold text-slate-700 dark:text-slate-200">
               Select number of words
             </label>
             <select
+              id="totalQuestions"
               name="totalQuestions"
               value={totalQuestions}
               onChange={(e) => setTotalQuestions(e.target.value)}
@@ -29,6 +43,7 @@ export default function QuizNew({
               <option value={50}>50 words</option>
             </select>
           </div>
+          {Number(totalQuestions) > availableCount && <p className="text-sm text-slate-500 dark:text-slate-400">This round will use all {availableCount} available words.</p>}
 
           <div className="card bg-brand-50/50 dark:bg-brand-950/30 border border-brand-200/50 dark:border-brand-900/50 text-left mt-8">
             <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
@@ -56,6 +71,7 @@ export default function QuizNew({
           <button
             className="btn btn--primary text-lg px-10 py-4 mt-6 w-full sm:w-auto"
             onClick={() => handleStartQuiz()}
+            disabled={!availableCount}
           >
             Start Quiz Now
           </button>

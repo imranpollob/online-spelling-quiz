@@ -1,0 +1,65 @@
+.site-header {
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  position: relative;
+  z-index: 30;
+}
+.site-header-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 32px;
+  min-height: 76px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 32px;
+}
+.site-brand { display: inline-flex; align-items: center; gap: 12px; justify-self: start; text-decoration: none; color: var(--color-text); }
+.site-brand img { object-fit: contain; }
+.site-brand > span { font-family: var(--font-heading); font-size: 23px; font-weight: 600; letter-spacing: -.8px; }
+.site-brand > span > span { color: var(--color-primary); }
+.site-navigation { display: flex; align-items: center; gap: 8px; backdrop-filter: none; }
+.site-navigation a { position: relative; padding: 10px 16px; font-size: 13px; font-weight: 600; color: var(--color-text-muted); text-decoration: none; border-radius: var(--radius); transition: background 150ms, color 150ms; white-space: nowrap; }
+.site-navigation a:hover { color: var(--color-text); background: color-mix(in srgb, var(--color-text) 4%, transparent); }
+.site-navigation a.active { color: var(--color-primary-hover); background: color-mix(in srgb, var(--color-primary) 8%, transparent); }
+.site-utilities { display: flex; align-items: center; justify-self: end; gap: 12px; }
+.site-icon-button { width: 36px; height: 36px; display: grid; place-items: center; border-radius: var(--radius); color: var(--color-text-muted); }
+.site-icon-button svg { width: 18px; height: 18px; }
+.site-icon-button:hover { color: var(--color-primary); background: color-mix(in srgb, var(--color-primary) 7%, transparent); }
+.site-utility-divider { width: 1px; height: 24px; background: var(--color-border); margin: 0 4px; }
+.site-account { position: relative; }
+.site-account summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 8px; padding: 4px; border-radius: var(--radius); color: var(--color-text-muted); }
+.site-account summary::-webkit-details-marker { display: none; }
+.site-account summary > svg { width: 12px; height: 12px; }
+.site-avatar { width: 32px; height: 32px; display: grid; place-items: center; background: color-mix(in srgb, var(--color-primary) 12%, var(--color-surface)); border: 1px solid color-mix(in srgb, var(--color-primary) 20%, transparent); border-radius: 50%; color: var(--color-primary-hover); font-size: 12px; font-weight: 700; }
+.site-account-panel { position: absolute; right: 0; top: calc(100% + 12px); width: 240px; padding: 8px; border: 1px solid var(--color-border); border-radius: 12px; background: var(--color-surface); box-shadow: 0 12px 32px color-mix(in srgb, var(--brand-950) 12%, transparent); }
+.site-account-info { padding: 8px 12px 16px; margin-bottom: 4px; border-bottom: 1px solid var(--color-border); display: flex; flex-direction: column; gap: 4px; overflow-wrap: anywhere; }
+.site-account-info strong { font-size: 13px; color: var(--color-text); font-weight: 600; }
+.site-account-info > span { font-size: 11px; color: var(--color-text-muted); }
+.site-account-panel > a, .site-account-panel > button { display: flex; justify-content: space-between; width: 100%; padding: 10px 12px; font-size: 13px; color: var(--color-text); text-align: left; border-radius: var(--radius); }
+.site-account-panel > a:hover, .site-account-panel > button:hover { background: color-mix(in srgb, var(--color-primary) 8%, transparent); }
+.site-sign-in { color: var(--color-primary-hover); font-size: 13px; font-weight: 600; white-space: nowrap; padding: 8px; border-radius: var(--radius); }
+.site-header a:focus-visible, .site-header button:focus-visible, .site-header summary:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }
+@media (max-width: 900px) {
+  .site-header-inner { gap: 16px; padding: 0 24px; }
+  .site-navigation a { padding: 10px 12px; }
+  .site-utilities { gap: 8px; }
+}
+@media (max-width: 800px) {
+  .site-header-inner { grid-template-columns: 1fr auto; grid-template-rows: 64px auto; padding: 0 20px; gap: 0; min-height: 64px; }
+  .site-brand { gap: 8px; }
+  .site-brand > span { font-size: 20px; }
+  .site-brand img { width: 28px; height: 28px; }
+  .site-utilities { gap: 4px; }
+  .site-utility-divider, .site-account summary > svg { display: none; }
+  .site-account summary { padding: 4px; }
+  .site-navigation { grid-row: 2; grid-column: 1 / -1; border-top: 1px solid color-mix(in srgb, var(--color-border) 60%, transparent); padding: 8px 0; gap: 4px; }
+  .site-navigation a { flex: 1; text-align: center; padding: 8px 12px; font-size: 12px; }
+  .site-account-panel { right: -40px; }
+}
+@media (max-width: 360px) {
+  .site-header-inner { padding: 0 12px; }
+  .site-brand > span { font-size: 18px; }
+  .site-brand { gap: 4px; }
+  .site-icon-button { width: 32px; }
+}

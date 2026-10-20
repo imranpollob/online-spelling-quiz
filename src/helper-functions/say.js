@@ -1,32 +1,60 @@
-const { REACT_APP_VOICERSS_DOT_ORG_API_KEY } = process.env;
+import pronunciations from "../data/pronunciations.json";
+import wordPolicy from "../data/wordPolicy";
 
-export default function say(word) {
-  if ("speechSynthesis" in window) {
-    window.speechSynthesis.speak(new SpeechSynthesisUtterance(word));
-  } else {
-    say2(word);
+let currentAudio;
+let playbackId = 0;
+
+export function stopSpeaking() {
+  playbackId += 1;
+  if (currentAudio) {
+    currentAudio.onerror = null;
+    currentAudio.pause();
+    currentAudio = null;
   }
+  window.speechSynthesis?.cancel();
 }
 
-function say2(word) {
-  let ctx = new AudioContext();
-  let audio;
+export default function say(word) {
+  stopSpeaking();
+  if (typeof word !== "string" || !word.trim()) return;
 
-  fetch(
-    `http://api.voicerss.org/?key=${REACT_APP_VOICERSS_DOT_ORG_API_KEY}&hl=en-us&v=Mary&c=MP3&src=${word}`
-  )
-    .then((data) => data.arrayBuffer())
-    .then((arrayBuffer) => ctx.decodeAudioData(arrayBuffer))
-    .then((decodeAudioData) => {
-      audio = decodeAudioData;
-    })
-    .then(() => {
-      let playSound = ctx.createBufferSource();
-      playSound.buffer = audio;
-      playSound.connect(ctx.destination);
-      playSound.start(ctx.currentTime);
-    })
-    .catch((err) => {
-      console.log(err);
+  const normalized = wordPolicy.canonicalSpelling(word);
+  const requestId = playbackId;
+  let usedFallback = false;
+  const fallback = () => {
+    if (requestId !== playbackId || usedFallback) return;
+    usedFallback = true;
+    if (currentAudio) {
+      currentAudio.onerror = null;
+      currentAudio.pause();
+      currentAudio = null;
+    }
+    if (window.speechSynthesis && window.SpeechSynthesisUtterance) {
+      const utterance = new window.SpeechSynthesisUtterance(normalized);
+      utterance.lang = "en-US";
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
+  const clip = Object.prototype.hasOwnProperty.call(pronunciations.entries, normalized)
+    ? pronunciations.entries[normalized]
+    : null;
+  if (!clip) {
+    fallback();
+    return;
+  }
+
+  const base = (process.env.PUBLIC_URL || "").replace(/\/$/, "");
+  try {
+    const audio = new Audio(`${base}/${clip.file}`);
+    currentAudio = audio;
+    audio.onerror = fallback;
+    const playback = audio.play();
+    playback?.catch((error) => {
+      // Autoplay can be blocked until the user presses Listen.
+      if (error.name !== "NotAllowedError" && error.name !== "AbortError") fallback();
     });
+  } catch {
+    fallback();
+  }
 }

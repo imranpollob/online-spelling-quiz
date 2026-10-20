@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import migrateToFirebase from '../scripts/migrateToFirebase';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import words from '../data/words';
 
@@ -32,7 +32,7 @@ export default function Migration() {
       if (count === 0) {
         setStatus('Import cancelled - already completed');
       } else {
-        setStatus(`✅ Import complete! ${count} words added to Firestore`);
+        setStatus(`✅ Sync complete! ${count} curated words reconciled without creating duplicate entries.`);
         await checkWordCount();
       }
     } catch (error) {
@@ -47,9 +47,9 @@ export default function Migration() {
 
     try {
       const wordsCollection = collection(db, 'words');
-      const wordSnapshot = await getDocs(wordsCollection);
-      const fetchedWords = wordSnapshot.docs.map(doc => doc.data());
-      setStatus(`📊 Found ${fetchedWords.length} words in Firestore`);
+      const wordSnapshot = await getDocs(query(wordsCollection, where('isGlobal', '==', true)));
+      const fetchedWords = wordSnapshot.docs.map(doc => doc.data()).filter(word => !word.archived);
+      setStatus(`📊 Found ${fetchedWords.length} active shared words in Firestore`);
     } catch (error) {
       setStatus(`❌ Failed to fetch words: ${error.message}`);
     } finally {
@@ -101,7 +101,7 @@ export default function Migration() {
           <div className="card bg-blue-50/50 dark:bg-blue-950/30 p-6">
             <h3 className="font-bold text-lg mb-2 text-slate-800 dark:text-slate-200">Import Words to Firestore</h3>
             <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
-              One-time import of {words.length} words from words.js to Firestore database
+              Sync {words.length} curated words. Existing entries are updated, equivalent spellings are grouped, and duplicates are archived.
             </p>
             <button
               onClick={handleMigration}

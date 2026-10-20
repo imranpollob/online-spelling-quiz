@@ -1,0 +1,779 @@
+{
+  "version": "2026-10-20.1",
+  "spellingPolicy": "American English display forms; standard variants accepted when meaning and grammatical use agree.",
+  "sources": [
+    "https://www.merriam-webster.com/dictionary/miniscule",
+    "https://our-languages.canada.ca/en/writing-tips-plus/could-have-couldve-could-of",
+    "https://dictionary.cambridge.org/grammar/british-grammar/spelling-and-verb-forms",
+    "https://spellingbee.com/rules"
+  ],
+  "retired": {
+    "could of": "Nonstandard construction; retain only as a grammar error example.",
+    "abbas": "Personal name removed from the curated shared spelling collection."
+  },
+  "preferredSpellings": {
+    "miniscule": "minuscule"
+  },
+  "usageNotes": {
+    "minuscule": "Miniscule is a disputed spelling variant; minuscule is the teaching target.",
+    "practice": "British English uses practice for the noun and practise for the verb; context is required.",
+    "practise": "British verb spelling; use practice for the noun. Context is required.",
+    "license": "American noun and verb spelling; British English uses licence for the noun.",
+    "licence": "British noun spelling; the verb is license. Context is required."
+  },
+  "families": [
+    {
+      "word": "canceled",
+      "acceptedSpellings": [
+        "cancelled"
+      ]
+    },
+    {
+      "word": "fulfill",
+      "acceptedSpellings": [
+        "fulfil"
+      ]
+    },
+    {
+      "word": "judgment",
+      "acceptedSpellings": [
+        "judgement"
+      ]
+    },
+    {
+      "word": "neighbor",
+      "acceptedSpellings": [
+        "neighbour"
+      ]
+    },
+    {
+      "word": "skillful",
+      "acceptedSpellings": [
+        "skilful"
+      ]
+    },
+    {
+      "word": "willful",
+      "acceptedSpellings": [
+        "wilful"
+      ]
+    },
+    {
+      "word": "acknowledgment",
+      "acceptedSpellings": [
+        "acknowledgement"
+      ]
+    },
+    {
+      "word": "maneuver",
+      "acceptedSpellings": [
+        "manoeuvre"
+      ]
+    },
+    {
+      "word": "jewelry",
+      "acceptedSpellings": [
+        "jewellery"
+      ]
+    },
+    {
+      "word": "apologize",
+      "acceptedSpellings": [
+        "apologise"
+      ]
+    },
+    {
+      "word": "criticize",
+      "acceptedSpellings": [
+        "criticise"
+      ]
+    },
+    {
+      "word": "jeopardize",
+      "acceptedSpellings": [
+        "jeopardise"
+      ]
+    },
+    {
+      "word": "organize",
+      "acceptedSpellings": [
+        "organise"
+      ]
+    },
+    {
+      "word": "plagiarize",
+      "acceptedSpellings": [
+        "plagiarise"
+      ]
+    },
+    {
+      "word": "realize",
+      "acceptedSpellings": [
+        "realise"
+      ]
+    },
+    {
+      "word": "recognize",
+      "acceptedSpellings": [
+        "recognise"
+      ]
+    },
+    {
+      "word": "skepticism",
+      "acceptedSpellings": [
+        "scepticism"
+      ]
+    }
+  ],
+  "homophoneGroups": [
+    [
+      "affect",
+      "effect"
+    ],
+    [
+      "allowed",
+      "aloud"
+    ],
+    [
+      "all ready",
+      "already"
+    ],
+    [
+      "all together",
+      "altogether"
+    ],
+    [
+      "ascent",
+      "assent"
+    ],
+    [
+      "bare",
+      "bear"
+    ],
+    [
+      "brake",
+      "break"
+    ],
+    [
+      "capital",
+      "capitol"
+    ],
+    [
+      "cite",
+      "sight",
+      "site"
+    ],
+    [
+      "complement",
+      "compliment"
+    ],
+    [
+      "discreet",
+      "discrete"
+    ],
+    [
+      "ensure",
+      "insure"
+    ],
+    [
+      "flair",
+      "flare"
+    ],
+    [
+      "gait",
+      "gate"
+    ],
+    [
+      "peak",
+      "peek",
+      "pique"
+    ],
+    [
+      "principal",
+      "principle"
+    ],
+    [
+      "stationary",
+      "stationery"
+    ],
+    [
+      "their",
+      "there",
+      "they're"
+    ],
+    [
+      "to",
+      "too",
+      "two"
+    ],
+    [
+      "weather",
+      "whether"
+    ],
+    [
+      "kernel",
+      "colonel"
+    ],
+    [
+      "great",
+      "grate"
+    ],
+    [
+      "eight",
+      "ate"
+    ],
+    [
+      "fourth",
+      "forth"
+    ],
+    [
+      "wholly",
+      "holy"
+    ],
+    [
+      "which",
+      "witch"
+    ],
+    [
+      "your",
+      "you're"
+    ],
+    [
+      "whose",
+      "who's"
+    ],
+    [
+      "seize",
+      "seas",
+      "sees"
+    ],
+    [
+      "sense",
+      "cents",
+      "scents"
+    ],
+    [
+      "lesson",
+      "lessen"
+    ],
+    [
+      "bough",
+      "bow"
+    ],
+    [
+      "ceiling",
+      "sealing"
+    ],
+    [
+      "raise",
+      "rays",
+      "raze"
+    ],
+    [
+      "rhyme",
+      "rime"
+    ],
+    [
+      "practice",
+      "practise"
+    ],
+    [
+      "license",
+      "licence"
+    ]
+  ],
+  "contextOnlyWords": [
+    "lead",
+    "minute",
+    "desert"
+  ],
+  "properNouns": {
+    "caribbean": "Caribbean",
+    "christmas": "Christmas",
+    "february": "February",
+    "mississippi": "Mississippi",
+    "tuesday": "Tuesday",
+    "wednesday": "Wednesday"
+  },
+  "warmupWords": [
+    "eager",
+    "gallop",
+    "keen",
+    "money",
+    "young",
+    "hello"
+  ],
+  "vocabularyWords": [
+    "bourgeois",
+    "connoisseur",
+    "daiquiri",
+    "ethereal",
+    "euphoria",
+    "gargantuan",
+    "juxtaposition",
+    "labyrinth",
+    "pedagogue",
+    "supernumerary",
+    "trepidation",
+    "xenophobe",
+    "zephyr",
+    "abracadabra"
+  ],
+  "beginnerWords": [
+    "accept",
+    "access",
+    "across",
+    "adopt",
+    "advice",
+    "advise",
+    "almost",
+    "aloud",
+    "already",
+    "argument",
+    "athlete",
+    "awful",
+    "awkward",
+    "balance",
+    "bare",
+    "bear",
+    "because",
+    "before",
+    "belief",
+    "believe",
+    "beneath",
+    "benefit",
+    "brake",
+    "break",
+    "breath",
+    "breathe",
+    "careful",
+    "castle",
+    "caught",
+    "chief",
+    "choir",
+    "clothes",
+    "column",
+    "coming",
+    "decide",
+    "describe",
+    "difficult",
+    "disappear",
+    "disease",
+    "doubt",
+    "drought",
+    "dumbbell",
+    "eager",
+    "easily",
+    "eight",
+    "eighth",
+    "enemy",
+    "expect",
+    "extreme",
+    "fewer",
+    "finally",
+    "forty",
+    "forward",
+    "fourth",
+    "friend",
+    "gait",
+    "gate",
+    "general",
+    "genuine",
+    "gnome",
+    "grammar",
+    "great",
+    "guard",
+    "guidance",
+    "happily",
+    "happiness",
+    "height",
+    "honest",
+    "hung",
+    "island",
+    "keen",
+    "kneel",
+    "lay",
+    "lead",
+    "led",
+    "length",
+    "less",
+    "lesson",
+    "lie",
+    "lightning",
+    "likely",
+    "loose",
+    "lose",
+    "lovely",
+    "lying",
+    "meant",
+    "money",
+    "muscle",
+    "neither",
+    "niece",
+    "ninety",
+    "numb",
+    "often",
+    "paid",
+    "peak",
+    "peek",
+    "piece",
+    "planning",
+    "pleasant",
+    "poise",
+    "proof",
+    "quality",
+    "quantity",
+    "quiet",
+    "quit",
+    "quite",
+    "raise",
+    "really",
+    "rise",
+    "safety",
+    "scared",
+    "scissors",
+    "sense",
+    "shining",
+    "since",
+    "site",
+    "sketch",
+    "soldier",
+    "speech",
+    "stopping",
+    "studying",
+    "subtle",
+    "than",
+    "their",
+    "then",
+    "there",
+    "through",
+    "to",
+    "tonight",
+    "too",
+    "truly",
+    "two",
+    "until",
+    "using",
+    "usually",
+    "veil",
+    "village",
+    "weather",
+    "weird",
+    "welcome",
+    "whether",
+    "which",
+    "whistle",
+    "wholly",
+    "whose",
+    "width",
+    "writing",
+    "yacht",
+    "yesterday",
+    "yield",
+    "young",
+    "your",
+    "hello"
+  ],
+  "advancedWords": [
+    "acquaintance",
+    "acquiesce",
+    "acreage",
+    "aerial",
+    "allegiance",
+    "amateur",
+    "architecture",
+    "arctic",
+    "assassinate",
+    "atheist",
+    "auxiliary",
+    "baguette",
+    "ballet",
+    "belligerent",
+    "bellwether",
+    "bourgeois",
+    "bough",
+    "buoy",
+    "buoyant",
+    "bureaucracy",
+    "camouflage",
+    "caribbean",
+    "caramel",
+    "cemetery",
+    "chassis",
+    "chauffeur",
+    "chrysanthemum",
+    "cigarette",
+    "colloquial",
+    "condescend",
+    "connoisseur",
+    "conscience",
+    "conscientious",
+    "conscious",
+    "consensus",
+    "controversy",
+    "correspondence",
+    "criterion",
+    "dachshund",
+    "daiquiri",
+    "deceitful",
+    "deterrence",
+    "dexterity",
+    "diphthong",
+    "drunkenness",
+    "dyslexia",
+    "ecstasy",
+    "effervescent",
+    "elicit",
+    "equilibrium",
+    "ethereal",
+    "euphoria",
+    "exaggerate",
+    "exhilarate",
+    "exquisite",
+    "feasible",
+    "feisty",
+    "fiery",
+    "flabbergasted",
+    "fluorescent",
+    "fuchsia",
+    "gargantuan",
+    "gauge",
+    "gracious",
+    "handkerchief",
+    "harass",
+    "harassment",
+    "harbinger",
+    "hierarchy",
+    "hindrance",
+    "humorous",
+    "hygiene",
+    "hypocrisy",
+    "hypocrite",
+    "impeccable",
+    "inadvertent",
+    "incongruous",
+    "indict",
+    "indispensable",
+    "infallible",
+    "inflammable",
+    "ingratiate",
+    "innocuous",
+    "innuendo",
+    "inoculate",
+    "insidious",
+    "insurmountable",
+    "intelligible",
+    "intermittent",
+    "irresistible",
+    "itinerary",
+    "jeopardize",
+    "jettison",
+    "jewelry",
+    "juxtaposition",
+    "kaleidoscope",
+    "labyrinth",
+    "larynx",
+    "liaison",
+    "lieutenant",
+    "luxurious",
+    "maneuver",
+    "medieval",
+    "millennium",
+    "minuscule",
+    "miscellaneous",
+    "mischievous",
+    "mnemonic",
+    "moccasin",
+    "monotonous",
+    "nauseous",
+    "onomatopoeia",
+    "opaque",
+    "paraphernalia",
+    "parliament",
+    "pedagogue",
+    "perseverance",
+    "personnel",
+    "pharaoh",
+    "phenomenon",
+    "phlegm",
+    "physician",
+    "pique",
+    "pneumonia",
+    "precede",
+    "precedence",
+    "precipice",
+    "predicament",
+    "prejudice",
+    "prerogative",
+    "pretentious",
+    "privilege",
+    "prophecy",
+    "prophesy",
+    "pseudonym",
+    "psychological",
+    "quarantine",
+    "questionnaire",
+    "raspberry",
+    "receipt",
+    "reconcile",
+    "renaissance",
+    "rendezvous",
+    "reservoir",
+    "resilient",
+    "resuscitate",
+    "rhyme",
+    "rhythm",
+    "sacrilegious",
+    "sergeant",
+    "siege",
+    "silhouette",
+    "solemn",
+    "sophisticated",
+    "sovereign",
+    "species",
+    "specimen",
+    "spontaneous",
+    "stethoscope",
+    "supernumerary",
+    "supersede",
+    "surveillance",
+    "susceptible",
+    "synonymous",
+    "technique",
+    "thorough",
+    "threshold",
+    "tourniquet",
+    "translucent",
+    "trepidation",
+    "truancy",
+    "tsunami",
+    "twelfth",
+    "tyranny",
+    "unanimous",
+    "unscathed",
+    "upholstery",
+    "vacuum",
+    "vengeance",
+    "versatile",
+    "veterinarian",
+    "vicious",
+    "vigilant",
+    "vulnerable",
+    "withhold",
+    "wondrous",
+    "xenophobe",
+    "xylophone",
+    "yacht",
+    "yachtsman",
+    "zealous",
+    "zephyr",
+    "annihilate",
+    "discernible",
+    "entrepreneur",
+    "curriculum",
+    "abracadabra"
+  ],
+  "additions": [
+    {
+      "word": "accidentally",
+      "difficulty": "intermediate",
+      "practiceType": "spelling"
+    },
+    {
+      "word": "broccoli",
+      "difficulty": "intermediate",
+      "practiceType": "spelling"
+    },
+    {
+      "word": "zucchini",
+      "difficulty": "intermediate",
+      "practiceType": "spelling"
+    },
+    {
+      "word": "caffeine",
+      "difficulty": "intermediate",
+      "practiceType": "spelling"
+    },
+    {
+      "word": "refrigerator",
+      "difficulty": "intermediate",
+      "practiceType": "spelling"
+    },
+    {
+      "word": "spaghetti",
+      "difficulty": "intermediate",
+      "practiceType": "spelling"
+    },
+    {
+      "word": "assessment",
+      "difficulty": "intermediate",
+      "practiceType": "spelling"
+    },
+    {
+      "word": "auxiliary",
+      "difficulty": "advanced",
+      "practiceType": "spelling"
+    },
+    {
+      "word": "cancellation",
+      "difficulty": "intermediate",
+      "practiceType": "spelling"
+    },
+    {
+      "word": "curriculum",
+      "difficulty": "advanced",
+      "practiceType": "spelling"
+    },
+    {
+      "word": "entrepreneur",
+      "difficulty": "advanced",
+      "practiceType": "spelling"
+    },
+    {
+      "word": "kindergarten",
+      "difficulty": "intermediate",
+      "practiceType": "spelling"
+    },
+    {
+      "word": "acquiesce",
+      "difficulty": "advanced",
+      "practiceType": "spelling"
+    },
+    {
+      "word": "annihilate",
+      "difficulty": "advanced",
+      "practiceType": "spelling"
+    },
+    {
+      "word": "discernible",
+      "difficulty": "advanced",
+      "practiceType": "spelling"
+    },
+    {
+      "word": "exaggeration",
+      "difficulty": "intermediate",
+      "practiceType": "spelling"
+    },
+    {
+      "word": "lieutenant",
+      "difficulty": "advanced",
+      "practiceType": "spelling"
+    },
+    {
+      "word": "prerogative",
+      "difficulty": "advanced",
+      "practiceType": "spelling"
+    },
+    {
+      "word": "susceptible",
+      "difficulty": "advanced",
+      "practiceType": "spelling"
+    },
+    {
+      "word": "veterinarian",
+      "difficulty": "advanced",
+      "practiceType": "spelling"
+    }
+  ],
+  "difficultyNote": "Editorial spelling difficulty, not measured CEFR or error-frequency ranks. Explicit foundation and challenge lists override the intermediate default."
+}

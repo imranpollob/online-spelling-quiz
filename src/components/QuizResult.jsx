@@ -1,14 +1,13 @@
 import React from "react";
-import { v4 as uuidv4 } from "uuid";
 
 export default function QuizResult(props) {
   const { answerMap, quizStatus, totalQuestions, handleStartQuizAgain } = props;
 
   const correctCount = Object.entries(answerMap).filter(
-    ([key, value]) => key.trim().toLowerCase() === value.trim().toLowerCase()
+    ([key, value]) => quizStatus(key, value) === "Correct"
   ).length;
 
-  const percentage = Math.round((correctCount / totalQuestions) * 100);
+  const percentage = totalQuestions ? Math.round((correctCount / totalQuestions) * 100) : 0;
 
   return (
     <div className="glass rounded-3xl p-8 md:p-12 shadow-2xl animate-fade-in">
@@ -42,7 +41,7 @@ export default function QuizResult(props) {
               const isCorrect = quizStatus(key, value) === "Correct";
               return (
                 <tr
-                  key={uuidv4()}
+                  key={key}
                   className="border-b border-slate-200 dark:border-slate-700 hover:bg-slate-100/50 dark:hover:bg-slate-700/50 transition-colors"
                 >
                   <td className="px-6 py-4 font-medium text-slate-800 dark:text-slate-200">

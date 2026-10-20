@@ -1,178 +1,274 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { addWord, deleteWord } from "../services/wordService";
 import { useWords } from "../hooks/useWords";
 import { useAuth } from "../contexts/AuthContext";
-import { successToast, dangerToast, infoToast } from "../helper-functions/toast";
+import { successToast, dangerToast } from "../helper-functions/toast";
+import { stopSpeaking } from "../helper-functions/say";
 import Toast from "../helper-components/Toast";
 import WordList from "./WordList";
+import WordDialog from "./WordDialog";
+import LibraryIcon from "./LibraryIcon";
+import "./Words.css";
+import wordPolicy from "../data/wordPolicy.js";
 
-const ADMIN_EMAIL = 'polboy777@gmail.com';
+const { canonicalSpelling, policy } = wordPolicy;
 
-export default function Words() {
+const ADMIN_EMAIL = "polboy777@gmail.com";
+const PAGE_SIZE = 24;
+const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+const LEVELS = ["beginner", "intermediate", "advanced"];
+const INITIAL_FILTERS = { query: "", collection: "all", difficulty: "all", letter: "all", sort: "az", type: "all" };
+const WORD_TYPES = [["spelling", "Core spelling"], ["context", "Needs context"], ["phrase", "Phrases"], ["vocabulary", "Vocabulary challenge"], ["warmup", "Warm-up"], ["proper-noun", "Proper nouns"], ["name", "Names"]];
+const number = (value) => value.toLocaleString();
+
+export default function Words({ onRequestLogin }) {
   const { user, isAuthenticated } = useAuth();
-  const { words, loading, refreshWords } = useWords(user?.uid);
+  const { words, loading, error, refreshWords } = useWords(user?.uid);
+  const [filters, setFilters] = useState(INITIAL_FILTERS);
+  const [page, setPage] = useState(1);
+  const [view, setView] = useState("grid");
+  const [showAdd, setShowAdd] = useState(false);
   const [currentValue, setCurrentValue] = useState("");
+  const [newDifficulty, setNewDifficulty] = useState("intermediate");
   const [adding, setAdding] = useState(false);
-
+  const [formError, setFormError] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+  const searchRef = useRef(null);
+  const contentRef = useRef(null);
   const isAdmin = user?.email === ADMIN_EMAIL;
+  const canAdd = isAuthenticated && !user?.isAnonymous;
 
-  async function handleAddWord(word) {
-    if (!word) {
-      return;
-    }
-
-    // Check if user is authenticated
-    if (!isAuthenticated) {
-      infoToast("Please login to add your own words!");
-      return;
-    }
-
-    const cleanWord = word.trim().toLowerCase();
-
-    // Check if word already exists (in user's list or globally)
-    if (words.some(w => w.word === cleanWord)) {
-      dangerToast(`"${word}" is already in your word list`);
-      return;
-    }
-
-    setAdding(true);
-    try {
-      await addWord({
-        word: cleanWord,
-        difficulty: 'intermediate',
-        category: 'custom'
-      }, user.uid, user.email);
-
-      setCurrentValue("");
-
-      if (isAdmin) {
-        successToast(`"${word}" added globally for all users!`);
-      } else {
-        successToast(`"${word}" added to your personal list!`);
+  useEffect(() => {
+    const focusSearch = (event) => {
+      const target = event.target;
+      if (event.key === "/" && !event.ctrlKey && !event.metaKey && !event.altKey &&
+        !["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName) && !target.isContentEditable &&
+        !document.querySelector("dialog[open]")) {
+        event.preventDefault();
+        searchRef.current?.focus();
       }
+    };
+    window.addEventListener("keydown", focusSearch);
+    return () => { window.removeEventListener("keydown", focusSearch); stopSpeaking(); };
+  }, []);
 
-      // Refresh the word list
+  function changeFilter(key, value) {
+    setFilters((previous) => ({ ...previous, [key]: value }));
+    setPage(1);
+  }
+
+  function resetFilters() {
+    setFilters(INITIAL_FILTERS);
+    setPage(1);
+  }
+
+  function goToPage(value) {
+    setPage(value);
+    contentRef.current?.scrollIntoView?.({ block: "start", behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ? "instant" : "smooth" });
+  }
+
+  const ownWords = words.filter((word) => !word.isGlobal && user?.uid && word.userId === user.uid);
+  const sharedWords = words.filter((word) => word.isGlobal);
+  const collections = [
+    { value: "all", label: "All words", icon: "library", count: words.length },
+    { value: "shared", label: "Shared library", icon: "globe", count: sharedWords.length },
+    { value: "mine", label: "My words", icon: "personal", count: ownWords.length },
+  ];
+  const collectionWords = useMemo(() => words.filter((word) =>
+    filters.collection === "all" || (filters.collection === "shared" ? word.isGlobal : (!word.isGlobal && user?.uid && word.userId === user.uid))
+  ), [words, filters.collection, user?.uid]);
+  const levelCounts = LEVELS.reduce((counts, level) => ({ ...counts, [level]: collectionWords.filter((word) => word.difficulty === level).length }), {});
+  const matchingWords = useMemo(() => {
+    const query = filters.query.trim().toLowerCase();
+    return collectionWords.filter((word) =>
+      [word.word, ...(word.acceptedSpellings || []), ...(word.commonMistakes || [])].some((spelling) => spelling.toLowerCase().includes(query)) &&
+      (filters.difficulty === "all" || word.difficulty === filters.difficulty) &&
+      (filters.type === "all" || word.practiceType === filters.type)
+    );
+  }, [collectionWords, filters.query, filters.difficulty, filters.type]);
+  const availableLetters = new Set(matchingWords.map((word) => word.word[0]?.toUpperCase()));
+  const filteredWords = useMemo(() => {
+    const result = matchingWords.filter((word) => filters.letter === "all" || word.word[0]?.toUpperCase() === filters.letter);
+    return result.sort((a, b) => {
+      if (filters.sort === "shortest") return a.word.length - b.word.length || a.word.localeCompare(b.word);
+      return (filters.sort === "za" ? -1 : 1) * a.word.localeCompare(b.word);
+    });
+  }, [matchingWords, filters.letter, filters.sort]);
+  const totalPages = Math.max(1, Math.ceil(filteredWords.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const pageWords = filteredWords.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const hasFilters = filters.query || filters.collection !== "all" || filters.difficulty !== "all" || filters.letter !== "all" || filters.type !== "all";
+  const visiblePages = Array.from({ length: totalPages }, (_, index) => index + 1)
+    .filter((value) => value === 1 || value === totalPages || Math.abs(value - currentPage) <= 1);
+
+  async function handleAddWord(event) {
+    event.preventDefault();
+    if (adding || !canAdd) return;
+    const cleanWord = currentValue.trim().toLowerCase().replace(/\s+/g, " ");
+    if (!cleanWord || !/^[a-z]+(?:[ '-][a-z]+)*$/.test(cleanWord)) {
+      setFormError("Enter an English word. Spaces, hyphens, and apostrophes are welcome.");
+      return;
+    }
+    if (Object.prototype.hasOwnProperty.call(policy.retired, cleanWord) && (isAdmin || cleanWord !== "abbas")) {
+      setFormError(policy.retired[cleanWord]);
+      return;
+    }
+    if (words.some((word) => canonicalSpelling(word.word) === canonicalSpelling(cleanWord))) {
+      setFormError(`“${cleanWord}” is already in your library. Try searching for it instead.`);
+      return;
+    }
+    setAdding(true);
+    setFormError("");
+    try {
+      await addWord({ word: cleanWord, difficulty: newDifficulty, category: "custom" }, user.uid, user.email);
+      setCurrentValue("");
+      setShowAdd(false);
+      setFilters({ ...INITIAL_FILTERS, query: cleanWord, collection: isAdmin ? "shared" : "mine" });
+      setPage(1);
+      successToast(isAdmin ? `“${cleanWord}” added to the shared library.` : `“${cleanWord}” added to your words.`);
       await refreshWords();
-    } catch (error) {
-      dangerToast(`Failed to add word: ${error.message}`);
+    } catch (addError) {
+      setFormError(`Couldn't add this word. ${addError.message}`);
     } finally {
       setAdding(false);
     }
   }
 
-  function handleInput(e) {
-    if (e.key === "Enter") {
-      handleAddWord(e.target.value);
-    }
-  }
-
-  async function handleDeleteWord(wordId, wordText, wordData) {
-    // Only allow deleting own words (or admin can delete any)
-    if (!isAdmin && wordData.userId !== user?.uid) {
-      dangerToast("You can only delete your own words");
-      return;
-    }
-
+  async function handleDeleteWord() {
+    if (deleting || !deleteTarget || !isAuthenticated || (!isAdmin && (deleteTarget.isGlobal || deleteTarget.userId !== user?.uid))) return;
+    setDeleting(true);
     try {
-      await deleteWord(wordId);
-      dangerToast(`"${wordText}" removed from ${wordData.isGlobal ? 'global' : 'your'} list`);
-
-      // Refresh the word list
+      await deleteWord(deleteTarget.id);
+      successToast(`“${deleteTarget.word}” removed from the library.`);
+      setDeleteTarget(null);
       await refreshWords();
-    } catch (error) {
-      dangerToast(`Failed to remove word: ${error.message}`);
+    } catch (deleteError) {
+      dangerToast(`Couldn't remove this word. ${deleteError.message}`);
+    } finally {
+      setDeleting(false);
     }
   }
-
-  if (loading) {
-    return (
-      <div className="min-h-[calc(100vh-73px)] flex items-center justify-center">
-        <div className="text-2xl font-bold text-gradient">Loading words...</div>
-      </div>
-    );
-  }
-
-  // Separate words by type for display
-  const globalWords = words.filter(w => w.isGlobal);
-  const personalWords = words.filter(w => !w.isGlobal);
 
   return (
-    <div className="min-h-[calc(100vh-73px)] flex justify-center p-6 animate-fade-in">
+    <div className="word-library">
       <Toast />
-      <div className="max-w-4xl w-full">
-        {/* Header Card with Add Word Form */}
-        <div className="glass rounded-3xl p-8 md:p-12 shadow-2xl mb-6">
-          <div className="text-center mb-6">
-            <h2 className="text-3xl font-bold text-gradient mb-2">Manage Words</h2>
-            <div className="space-y-1">
-              <p className="text-slate-600 dark:text-slate-400">
-                <span className="font-bold text-primary-600 dark:text-primary-400">{globalWords.length}</span> global words
-                {isAuthenticated && (
-                  <>
-                    {' + '}
-                    <span className="font-bold text-purple-600 dark:text-purple-400">{personalWords.length}</span> your words
-                  </>
-                )}
-              </p>
-              {isAdmin && (
-                <p className="text-sm text-emerald-600 dark:text-emerald-400 font-semibold">
-                  👑 Admin: Your words are visible to all users
-                </p>
-              )}
-              {!isAdmin && isAuthenticated && (
-                <p className="text-sm text-purple-600 dark:text-purple-400">
-                  📝 Your personal words are only visible to you
-                </p>
-              )}
-            </div>
+      <div className="library-shell">
+        <header className="library-header">
+          <div>
+            <div className="library-eyebrow"><span /> A LITTLE LEARNING, EVERY DAY</div>
+            <h1>Word library<span className="library-title-dot">.</span></h1>
+            <p>Discover new words. Listen closely. Make them yours.</p>
           </div>
+          <div className="library-header-actions">
+            <Link to="/quiz" className="library-button library-button-secondary"><LibraryIcon name="headphones" /> Practice spelling</Link>
+            <button type="button" className="library-button library-button-primary" onClick={() => {
+              if (!canAdd) { onRequestLogin?.(); return; }
+              setFormError(""); setShowAdd(true);
+            }}><LibraryIcon name="plus" /> Add a word</button>
+          </div>
+        </header>
 
-          {!isAuthenticated ? (
-            <div className="card bg-brand-50/50 dark:bg-brand-950/30 border border-brand-200/50 dark:border-brand-900/50 p-6 text-center">
-              <svg className="w-12 h-12 mx-auto mb-3 text-brand-600 dark:text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-              </svg>
-              <h3 className="font-bold text-lg mb-2 text-slate-800 dark:text-slate-200">
-                Please login to add your own words
-              </h3>
-              <p className="text-sm text-slate-600 dark:text-slate-400">
-                You can browse and practice with existing words as a guest. Login to build your personal word list!
-              </p>
-            </div>
-          ) : (
-            <div className="flex flex-col sm:flex-row gap-3">
-              <input
-                name="word"
-                type="text"
-                value={currentValue}
-                onChange={(e) => setCurrentValue(e.target.value)}
-                onKeyDown={(e) => handleInput(e)}
-                placeholder="Enter a new word..."
-                disabled={adding}
-                className="flex-1 px-6 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-800/80 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-4 focus:ring-primary-200 dark:focus:ring-primary-800 focus:border-primary-500 dark:focus:border-primary-400 transition-all duration-300 backdrop-blur-sm disabled:opacity-50"
-              />
-              <button
-                className="btn btn--primary px-8"
-                onClick={() => handleAddWord(currentValue)}
-                disabled={adding}
-              >
-                {adding ? 'Adding...' : (isAdmin ? 'Add Global Word' : 'Add My Word')}
+        <div className="library-layout">
+          <aside className="library-sidebar" aria-label="Library filters">
+            <section className="library-collections">
+              <h2 className="library-section-label">YOUR LIBRARY</h2>
+              <div className="library-collection-buttons">
+                {collections.map((collection) => <button type="button" key={collection.value}
+                  className={`library-collection ${filters.collection === collection.value ? "is-selected" : ""}`}
+                  aria-pressed={filters.collection === collection.value} onClick={() => changeFilter("collection", collection.value)}>
+                  <LibraryIcon name={collection.icon} /><span>{collection.label}</span><span className="library-collection-count">{loading && !words.length ? "—" : number(collection.count)}</span>
+                </button>)}
+              </div>
+            </section>
+
+            <section className="library-levels">
+              <h2 className="library-section-label">DIFFICULTY</h2>
+              <button type="button" className={`library-level-option ${filters.difficulty === "all" ? "is-selected" : ""}`} aria-pressed={filters.difficulty === "all"} onClick={() => changeFilter("difficulty", "all")}>
+                <span className="library-radio">{filters.difficulty === "all" && <span />}</span><span>All levels</span><span className="library-level-count">{number(collectionWords.length)}</span>
               </button>
-            </div>
-          )}
-        </div>
+              {LEVELS.map((level) => <button type="button" key={level} className={`library-level-option ${filters.difficulty === level ? "is-selected" : ""}`} aria-pressed={filters.difficulty === level} onClick={() => changeFilter("difficulty", level)}>
+                <span className="library-radio">{filters.difficulty === level && <span />}</span><span className={`level-dot level-dot-${level}`} /><span className="library-capitalize">{level}</span><span className="library-level-count">{number(levelCounts[level])}</span>
+              </button>)}
+            </section>
 
-        {/* Word List Card */}
-        <div className="glass rounded-3xl p-8 shadow-2xl">
-          <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200 mb-6 flex items-center gap-2">
-            <svg className="w-6 h-6 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            Word Library
-          </h3>
-          <WordList words={words} handleDeleteWord={handleDeleteWord} currentUserId={user?.uid} />
+            <div className="library-note">
+              <div className="library-note-art" aria-hidden="true"><span>Aa</span><LibraryIcon name="speaker" /></div>
+              <h3>Hear it. Say it. Spell it.</h3>
+              <p>Listen to a word, say it out loud, then put your memory to the test.</p>
+              <Link to="/quiz">Take a quick quiz <LibraryIcon name="arrow" /></Link>
+            </div>
+            <p className="library-sidebar-footnote"><LibraryIcon name={isAdmin ? "globe" : "personal"} />{isAdmin ? "You’re managing the shared library." : "A few words today. A little more confidence tomorrow."}</p>
+          </aside>
+
+          <section ref={contentRef} className="library-content" aria-label="Browse words" aria-busy={loading}>
+            <div className="library-toolbar">
+              <form className="library-search" role="search" onSubmit={(event) => event.preventDefault()}>
+                <LibraryIcon name="search" />
+                <input ref={searchRef} type="search" aria-label="Search words" placeholder="Search for a word…" value={filters.query} onChange={(event) => changeFilter("query", event.target.value)} />
+                {filters.query ? <button type="button" className="library-icon-button" aria-label="Clear search" onClick={() => { changeFilter("query", ""); searchRef.current?.focus(); }}><LibraryIcon name="close" /></button> : <kbd>/</kbd>}
+              </form>
+              <label className="library-mobile-level"><span className="sr-only">Difficulty</span><select value={filters.difficulty} onChange={(event) => changeFilter("difficulty", event.target.value)}><option value="all">All levels</option>{LEVELS.map((level) => <option key={level} value={level}>{level[0].toUpperCase() + level.slice(1)}</option>)}</select></label>
+              <label className="library-sort"><span className="sr-only">Sort words</span><select value={filters.sort} onChange={(event) => changeFilter("sort", event.target.value)}><option value="az">Alphabetical: A–Z</option><option value="za">Alphabetical: Z–A</option><option value="shortest">Shortest first</option></select></label>
+              <div className="library-view-toggle" role="group" aria-label="Word layout">
+                <button type="button" aria-label="Grid view" aria-pressed={view === "grid"} onClick={() => setView("grid")}><LibraryIcon name="grid" /></button>
+                <button type="button" aria-label="List view" aria-pressed={view === "list"} onClick={() => setView("list")}><LibraryIcon name="list" /></button>
+              </div>
+            </div>
+
+            <div className="library-alphabet" role="group" aria-label="Filter by first letter">
+              <button type="button" className={filters.letter === "all" ? "is-selected" : ""} aria-pressed={filters.letter === "all"} onClick={() => changeFilter("letter", "all")}>All</button>
+              <span className="library-alphabet-divider" />
+              {ALPHABET.map((letter) => <button type="button" key={letter} className={filters.letter === letter ? "is-selected" : ""} aria-label={`Words beginning with ${letter}`} aria-pressed={filters.letter === letter} disabled={!availableLetters.has(letter)} onClick={() => changeFilter("letter", letter)}>{letter}</button>)}
+            </div>
+
+            <div className="library-results-heading">
+              <div className="library-results-title"><h2>{collections.find((collection) => collection.value === filters.collection).label}</h2><span aria-live="polite" aria-atomic="true">{loading && !words.length ? "Loading…" : `${number(filteredWords.length)} ${filteredWords.length === 1 ? "word" : "words"}`}</span></div>
+              <label className="library-type-filter"><span className="sr-only">Word type</span><select value={filters.type} onChange={(event) => changeFilter("type", event.target.value)}><option value="all">All word types</option>{WORD_TYPES.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
+              {hasFilters ? <button type="button" className="library-text-button" onClick={resetFilters}><LibraryIcon name="close" /> Clear filters</button> : <span className="library-listen-hint"><LibraryIcon name="speaker" /> Click to hear a word</span>}
+            </div>
+
+            {error ? <div className="library-empty" role="alert"><LibraryIcon name="book" /><h3>We couldn’t load your words.</h3><p>Check your connection and give it another try.</p><button type="button" className="library-button library-button-primary" onClick={refreshWords}>Try again</button></div> : loading && !words.length ?
+              <div className="library-word-grid library-skeleton" aria-label="Loading word library">{Array.from({ length: 9 }, (_, index) => <div key={index} className="library-skeleton-card"><span /><span /><span /></div>)}</div> : pageWords.length ?
+                <WordList words={pageWords} view={view} currentUserId={user?.uid} isAdmin={isAdmin} handleDeleteWord={setDeleteTarget} /> :
+                <div className="library-empty"><div className="library-empty-symbol"><LibraryIcon name={filters.collection === "mine" && !filters.query ? "personal" : "search"} /></div><h3>{filters.collection === "mine" && !hasFiltersExceptCollection(filters) ? "Your words start here." : "No words found."}</h3><p>{filters.collection === "mine" && !hasFiltersExceptCollection(filters) ? (canAdd ? "Keep the words you want to work on in your own collection." : "Sign in to build a collection of words you want to master.") : "Try another search or clear your filters to explore the library."}</p><button type="button" className="library-button library-button-primary" onClick={() => {
+                  if (filters.collection === "mine" && !hasFiltersExceptCollection(filters)) {
+                    if (canAdd) { setFormError(""); setShowAdd(true); } else onRequestLogin?.();
+                  } else resetFilters();
+                }}>{filters.collection === "mine" && !hasFiltersExceptCollection(filters) ? (canAdd ? "Add your first word" : "Sign in to get started") : "Clear filters"}</button></div>}
+
+            {!!filteredWords.length && !error && <footer className="library-pagination">
+              <p>Showing <strong>{number((currentPage - 1) * PAGE_SIZE + 1)}–{number(Math.min(currentPage * PAGE_SIZE, filteredWords.length))}</strong> of {number(filteredWords.length)} {filteredWords.length === 1 ? "word" : "words"}</p>
+              <nav aria-label="Word pages">
+                <button type="button" className="library-page-arrow" aria-label="Previous page" disabled={currentPage === 1} onClick={() => goToPage(currentPage - 1)}><LibraryIcon name="chevron" className="library-chevron-back" /></button>
+                {visiblePages.map((value, index) => <React.Fragment key={value}>{index > 0 && value - visiblePages[index - 1] > 1 && <span className="library-page-ellipsis">…</span>}<button type="button" aria-label={`Page ${value}`} aria-current={value === currentPage ? "page" : undefined} onClick={() => goToPage(value)}>{value}</button></React.Fragment>)}
+                <button type="button" className="library-page-arrow" aria-label="Next page" disabled={currentPage === totalPages} onClick={() => goToPage(currentPage + 1)}><LibraryIcon name="chevron" /></button>
+              </nav>
+            </footer>}
+            <div className="library-bottom-note"><LibraryIcon name="headphones" /><span>A stronger vocabulary starts with a little curiosity.</span></div>
+          </section>
         </div>
       </div>
+
+      {showAdd && <WordDialog title={isAdmin ? "Add to the shared library" : "Add a word to your collection"} description={isAdmin ? "A new word for everyone to discover and practice." : "Save a word you’d like to get more confident spelling."} onClose={() => setShowAdd(false)} busy={adding}>
+        <form className="library-word-form" onSubmit={handleAddWord}>
+          <label htmlFor="new-library-word">Word or phrase</label>
+          <input id="new-library-word" type="text" data-dialog-initial-focus autoComplete="off" maxLength={100} placeholder="e.g. serendipity" value={currentValue} onChange={(event) => { setCurrentValue(event.target.value); setFormError(""); }} disabled={adding} aria-invalid={!!formError} aria-describedby={formError ? "library-form-error" : undefined} required />
+          <label htmlFor="new-word-difficulty">Difficulty</label>
+          <select id="new-word-difficulty" value={newDifficulty} onChange={(event) => setNewDifficulty(event.target.value)} disabled={adding}>{LEVELS.map((level) => <option key={level} value={level}>{level[0].toUpperCase() + level.slice(1)}</option>)}</select>
+          <div className="library-form-notice"><LibraryIcon name={isAdmin ? "globe" : "personal"} /><span>{isAdmin ? "Visible to everyone in the shared library." : "Only you can see your personal words."}</span></div>
+          {formError && <p id="library-form-error" className="library-form-error" role="alert">{formError}</p>}
+          <div className="word-dialog-actions"><button type="button" className="library-button library-button-secondary" onClick={() => setShowAdd(false)} disabled={adding}>Cancel</button><button type="submit" className="library-button library-button-primary" disabled={adding || !currentValue.trim()}><LibraryIcon name="plus" />{adding ? "Adding…" : "Add word"}</button></div>
+        </form>
+      </WordDialog>}
+      {deleteTarget && <WordDialog title={`Remove “${deleteTarget.word}”?`} description={deleteTarget.isGlobal ? "This word will be removed from the shared library for everyone." : "This word will be removed from your personal collection."} onClose={() => setDeleteTarget(null)} busy={deleting}>
+        <div className="word-dialog-actions"><button type="button" data-dialog-initial-focus className="library-button library-button-secondary" onClick={() => setDeleteTarget(null)} disabled={deleting}>Keep word</button><button type="button" className="library-button library-button-danger" onClick={handleDeleteWord} disabled={deleting}><LibraryIcon name="trash" />{deleting ? "Removing…" : "Remove word"}</button></div>
+      </WordDialog>}
     </div>
   );
+}
+
+function hasFiltersExceptCollection(filters) {
+  return filters.query || filters.difficulty !== "all" || filters.letter !== "all" || filters.type !== "all";
 }

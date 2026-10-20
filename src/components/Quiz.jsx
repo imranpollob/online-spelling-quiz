@@ -1,10 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import shuffleArray from "./../helper-functions/array_shuffle";
-import say from "./../helper-functions/say";
+import say, { stopSpeaking } from "./../helper-functions/say";
 import { useWords } from "../hooks/useWords";
 import { useAuth } from "../contexts/AuthContext";
 import QuizNew from "./QuizNew";
 import QuizResult from "./QuizResult";
+import wordPolicy from "../data/wordPolicy.js";
+
+const { getQuizPool, isCorrectAnswer } = wordPolicy;
 
 export default function Quiz() {
   const { user } = useAuth();
@@ -15,6 +18,12 @@ export default function Quiz() {
   const [answerMap, setAnswerMap] = useState({});
   const [answer, setAnswer] = useState("");
   const [currentWord, CurrentWord] = useState();
+  const [practiceSet, setPracticeSet] = useState("spelling");
+  const [quizQuestions, setQuizQuestions] = useState([]);
+  const eligibleWords = useMemo(() => getQuizPool(allWords, practiceSet), [allWords, practiceSet]);
+  const questionCount = quizQuestions.length;
+
+  useEffect(() => stopSpeaking, []);
 
   function handleNextQuestion() {
     setAnswerMap({ ...answerMap, [currentWord]: answer });
@@ -25,6 +34,8 @@ export default function Quiz() {
     CurrentWord(selectedWord);
     if (selectedWord) {
       say(selectedWord);
+    } else {
+      stopSpeaking();
     }
     setAnswer("");
   }
@@ -34,17 +45,20 @@ export default function Quiz() {
   }
 
   function handleInputChange(value) {
-    const sanitized = value.replace(/[^a-zA-Z]/g, "");
+    const sanitized = value.replace(/[^a-zA-Z'’ -]/g, "");
     setAnswer(sanitized);
   }
 
   function handleStartQuiz() {
+    if (!eligibleWords.length) return;
     setQuizRunning(1);
     setAnswerMap({});
 
     // Get words from Firestore and shuffle
-    let tempWords = shuffleArray([...allWords]).slice(0, totalQuestions);
+    let tempWords = shuffleArray([...eligibleWords]).slice(0, Number(totalQuestions));
     setWords(tempWords);
+    setQuizQuestions(tempWords);
+    setAnswer("");
 
     const selectedWord = tempWords[0]?.word;
     CurrentWord(selectedWord);
@@ -54,6 +68,7 @@ export default function Quiz() {
   }
 
   function handleStartQuizAgain() {
+    stopSpeaking();
     setQuizRunning(0);
   }
 
@@ -71,7 +86,7 @@ export default function Quiz() {
   }
 
   function quizStatus(key, value) {
-    return key.trim().toLowerCase() === value.trim().toLowerCase()
+    return isCorrectAnswer(quizQuestions.find((word) => word.word === key) || key, value)
       ? "Correct"
       : "Incorrect";
   }
@@ -109,6 +124,9 @@ export default function Quiz() {
             totalQuestions={totalQuestions}
             setTotalQuestions={setTotalQuestions}
             handleStartQuiz={handleStartQuiz}
+            practiceSet={practiceSet}
+            setPracticeSet={setPracticeSet}
+            availableCount={eligibleWords.length}
           />
         ) : words.length > 0 ? (
           <div className="glass rounded-3xl p-8 md:p-12 shadow-2xl animate-fade-in">
@@ -116,16 +134,16 @@ export default function Quiz() {
             <div className="mb-8">
               <div className="flex justify-between items-center mb-2">
                 <span className="text-sm font-semibold text-slate-600 dark:text-slate-400">
-                  Question {totalQuestions - words.length + 1} of {totalQuestions}
+                  Question {questionCount - words.length + 1} of {questionCount}
                 </span>
                 <span className="text-sm font-semibold text-primary-600 dark:text-primary-400">
-                  {Math.round(((totalQuestions - words.length) / totalQuestions) * 100)}% Complete
+                  {Math.round(((questionCount - words.length) / questionCount) * 100)}% Complete
                 </span>
               </div>
               <div className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-gradient-to-r from-primary-500 to-brand-400 transition-all duration-500 ease-out"
-                  style={{ width: `${((totalQuestions - words.length) / totalQuestions) * 100}%` }}
+                  style={{ width: `${((questionCount - words.length) / questionCount) * 100}%` }}
                 />
               </div>
             </div>
@@ -147,6 +165,7 @@ export default function Quiz() {
                 onChange={(e) => handleInputChange(e.target.value)}
                 onKeyDown={(e) => handleInput(e)}
                 placeholder="Type the word here..."
+                aria-label="Your spelling"
                 className="w-full px-6 py-4 text-xl text-center rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-800/80 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-4 focus:ring-primary-200 dark:focus:ring-primary-800 focus:border-primary-500 dark:focus:border-primary-400 transition-all duration-300 backdrop-blur-sm"
                 autoFocus
                 autoComplete="off"
@@ -188,7 +207,7 @@ export default function Quiz() {
           <QuizResult
             answerMap={answerMap}
             quizStatus={quizStatus}
-            totalQuestions={totalQuestions}
+            totalQuestions={questionCount}
             handleStartQuizAgain={handleStartQuizAgain}
           />
         )}

@@ -14,8 +14,8 @@ export function useWords(userId = null) {
     async function fetchWords() {
       try {
         // Check session cache first
-        const cacheKey = `words_cache_${userId || 'global'}`;
-        const timestampKey = `words_cache_timestamp_${userId || 'global'}`;
+        const cacheKey = `words_cache_curated_v1_${userId || 'global'}`;
+        const timestampKey = `words_cache_timestamp_curated_v1_${userId || 'global'}`;
         const cachedWords = sessionStorage.getItem(cacheKey);
         const cacheTimestamp = sessionStorage.getItem(timestampKey);
         const now = Date.now();
@@ -48,11 +48,12 @@ export function useWords(userId = null) {
 
   const refreshWords = async () => {
     setLoading(true);
+    setError(null);
     try {
       const wordsData = await getAllWords(userId);
       setWords(wordsData);
-      const cacheKey = `words_cache_${userId || 'global'}`;
-      const timestampKey = `words_cache_timestamp_${userId || 'global'}`;
+      const cacheKey = `words_cache_curated_v1_${userId || 'global'}`;
+      const timestampKey = `words_cache_timestamp_curated_v1_${userId || 'global'}`;
       sessionStorage.setItem(cacheKey, JSON.stringify(wordsData));
       sessionStorage.setItem(timestampKey, Date.now().toString());
       setLoading(false);
