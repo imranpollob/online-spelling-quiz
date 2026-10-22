@@ -1,7 +1,10 @@
 import React from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render as renderComponent, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import Quiz from "./Quiz";
+import { MemoryRouter } from "react-router-dom";
+
+const render = component => renderComponent(<MemoryRouter>{component}</MemoryRouter>);
 import { useWords } from "../hooks/useWords";
 import { useAuth } from "../contexts/AuthContext";
 import say from "../helper-functions/say";
@@ -19,7 +22,7 @@ beforeEach(() => {
 
 test("scores a standard variant consistently in the summary and result row using actual question count", () => {
   render(<Quiz />);
-  fireEvent.click(screen.getByRole("button", { name: "Start Quiz Now" }));
+  fireEvent.click(screen.getByRole("button", { name: "Start quiz" }));
   expect(screen.getByText("Question 1 of 1")).toBeInTheDocument();
   expect(say).toHaveBeenCalledWith("neighbor");
   fireEvent.change(screen.getByRole("textbox", { name: "Your spelling" }), { target: { value: "neighbour" } });
@@ -29,12 +32,12 @@ test("scores a standard variant consistently in the summary and result row using
   expect(screen.getByText("Correct", { selector: "span" })).toBeInTheDocument();
 });
 
-test("warm-up mode is separate and spelling mistakes still fail", () => {
+test("uses core spelling without a practice-set selector and rejects misspellings", () => {
   render(<Quiz />);
-  fireEvent.change(screen.getByLabelText("Practice set"), { target: { value: "warmup" } });
-  fireEvent.click(screen.getByRole("button", { name: "Start Quiz Now" }));
-  expect(say).toHaveBeenCalledWith("money");
-  fireEvent.change(screen.getByRole("textbox", { name: "Your spelling" }), { target: { value: "muney" } });
+  expect(screen.queryByLabelText("Practice set")).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", { name: "Start quiz" }));
+  expect(say).toHaveBeenCalledWith("neighbor");
+  fireEvent.change(screen.getByRole("textbox", { name: "Your spelling" }), { target: { value: "nieghbor" } });
   fireEvent.click(screen.getByRole("button", { name: /Finish Quiz/ }));
   expect(screen.getByText("0%")).toBeInTheDocument();
   expect(screen.getByText("0 out of 1 correct")).toBeInTheDocument();
@@ -43,5 +46,5 @@ test("warm-up mode is separate and spelling mistakes still fail", () => {
 test("disables a quiz when every available word needs context", () => {
   useWords.mockReturnValue({ words: [{ word: "bear" }, { word: "all together" }], loading: false });
   render(<Quiz />);
-  expect(screen.getByRole("button", { name: "Start Quiz Now" })).toBeDisabled();
+  expect(screen.getByRole("button", { name: "Start quiz" })).toBeDisabled();
 });

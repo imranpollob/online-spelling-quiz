@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import ToolsLauncher from './ToolsLauncher';
+import brandLogo from '../assets/brand-logo.png';
 import './SiteHeader.css';
 
 export default function SiteHeader({ user, isAuthenticated, darkMode, onToggleTheme, onLogout, onLogin }) {
@@ -33,7 +34,7 @@ export default function SiteHeader({ user, isAuthenticated, darkMode, onToggleTh
   return <header className="site-header">
     <div className="site-header-inner">
       <Link to="/" className="site-brand" aria-label="SpellingQuiz home">
-        <img src={`${process.env.PUBLIC_URL}/brand-logo.png`} alt="" width="32" height="32" />
+        <img src={brandLogo} alt="" width="40" height="40" />
         <span>Spelling<span>Quiz</span></span>
       </Link>
       <nav className="site-navigation" aria-label="Main navigation">

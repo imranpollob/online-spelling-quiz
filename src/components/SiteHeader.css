@@ -15,7 +15,7 @@
   gap: 32px;
 }
 .site-brand { display: inline-flex; align-items: center; gap: 12px; justify-self: start; text-decoration: none; color: var(--color-text); }
-.site-brand img { object-fit: contain; }
+.site-brand img { object-fit: contain; flex-shrink: 0; }
 .site-brand > span { font-family: var(--font-heading); font-size: 23px; font-weight: 600; letter-spacing: -.8px; }
 .site-brand > span > span { color: var(--color-primary); }
 .site-navigation { display: flex; align-items: center; gap: 8px; backdrop-filter: none; }
@@ -49,7 +49,7 @@
   .site-header-inner { grid-template-columns: 1fr auto; grid-template-rows: 64px auto; padding: 0 20px; gap: 0; min-height: 64px; }
   .site-brand { gap: 8px; }
   .site-brand > span { font-size: 20px; }
-  .site-brand img { width: 28px; height: 28px; }
+  .site-brand img { width: 32px; height: 32px; }
   .site-utilities { gap: 4px; }
   .site-utility-divider, .site-account summary > svg { display: none; }
   .site-account summary { padding: 4px; }

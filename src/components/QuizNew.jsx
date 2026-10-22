@@ -1,82 +1,61 @@
 import React from "react";
+import { Link } from "react-router-dom";
+import LibraryIcon from "./LibraryIcon";
+import "./QuizSetup.css";
 
-export default function QuizNew({
-  totalQuestions,
-  setTotalQuestions,
-  handleStartQuiz,
-  practiceSet = "spelling",
-  setPracticeSet,
-  availableCount = 0,
-}) {
+const roundSizes = [5, 10, 15, 20, 30, 50];
+
+export default function QuizNew({ totalQuestions, setTotalQuestions, handleStartQuiz, availableCount = 0 }) {
+  const roundCount = Math.min(Number(totalQuestions), availableCount);
   return (
-    <div className="min-h-[calc(100vh-73px)] flex items-center justify-center p-6 animate-fade-in">
-      <div className="max-w-2xl w-full glass rounded-3xl p-8 md:p-12 shadow-2xl">
-        <div className="text-center space-y-6">
-          <h2 className="text-3xl font-bold text-gradient">Start Your Quiz</h2>
-
-          <div className="space-y-3 text-left">
-            <label htmlFor="practice-set" className="block font-semibold text-slate-700 dark:text-slate-200">Practice set</label>
-            <select id="practice-set" value={practiceSet} onChange={(event) => setPracticeSet(event.target.value)} className="w-full px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">
-              <option value="spelling">Core spelling</option>
-              <option value="warmup">Beginner warm-up</option>
-              <option value="vocabulary">Advanced vocabulary</option>
-            </select>
-            <p className="text-sm text-slate-500 dark:text-slate-400">{availableCount} {availableCount === 1 ? "word" : "words"} available. Homophones and phrases are reserved for practice with a definition or sentence.</p>
-          </div>
-
-          <div className="space-y-3">
-            <label htmlFor="totalQuestions" className="block text-lg font-semibold text-slate-700 dark:text-slate-200">
-              Select number of words
-            </label>
-            <select
-              id="totalQuestions"
-              name="totalQuestions"
-              value={totalQuestions}
-              onChange={(e) => setTotalQuestions(e.target.value)}
-              className="w-full px-6 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-800/80 text-slate-900 dark:text-slate-100 font-semibold text-lg focus:outline-none focus:ring-4 focus:ring-primary-200 dark:focus:ring-primary-800 focus:border-primary-500 dark:focus:border-primary-400 transition-all duration-300 cursor-pointer"
-            >
-              <option value={5}>5 words</option>
-              <option value={10}>10 words</option>
-              <option value={15}>15 words</option>
-              <option value={20}>20 words</option>
-              <option value={30}>30 words</option>
-              <option value={50}>50 words</option>
-            </select>
-          </div>
-          {Number(totalQuestions) > availableCount && <p className="text-sm text-slate-500 dark:text-slate-400">This round will use all {availableCount} available words.</p>}
-
-          <div className="card bg-brand-50/50 dark:bg-brand-950/30 border border-brand-200/50 dark:border-brand-900/50 text-left mt-8">
-            <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
-              <svg className="w-5 h-5 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              How to Play
-            </h3>
-            <ul className="space-y-3 text-slate-600 dark:text-slate-300">
-              <li className="flex items-start gap-2">
-                <span className="text-primary-500 font-bold">•</span>
-                <span>Listen to the audio pronunciation and type the word you hear</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary-500 font-bold">•</span>
-                <span>Click <span className="px-2 py-1 bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 rounded font-semibold text-sm">LISTEN</span> to replay the audio</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary-500 font-bold">•</span>
-                <span>Press <span className="px-2 py-1 bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 rounded font-semibold text-sm">ENTER</span> or click <span className="px-2 py-1 bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 rounded font-semibold text-sm">NEXT</span> to continue</span>
-              </li>
-            </ul>
-          </div>
-
-          <button
-            className="btn btn--primary text-lg px-10 py-4 mt-6 w-full sm:w-auto"
-            onClick={() => handleStartQuiz()}
-            disabled={!availableCount}
-          >
-            Start Quiz Now
-          </button>
+    <section className="quiz-setup" aria-labelledby="quiz-setup-title">
+      <div className="quiz-setup-intro">
+        <div>
+          <p className="quiz-eyebrow">A LITTLE LEARNING, EVERY DAY</p>
+          <h1 id="quiz-setup-title">Make every word count<span>.</span></h1>
+          <p>Listen carefully. Trust your memory. Build your spelling confidence.</p>
         </div>
+        <Link className="quiz-library-link" to="/words"><LibraryIcon name="book" /> Explore word library <LibraryIcon name="arrow" /></Link>
       </div>
-    </div>
+
+      <div className="quiz-setup-layout">
+        <div className="quiz-config">
+          <div className="quiz-config-heading">
+            <span className="quiz-config-icon"><LibraryIcon name="headphones" /></span>
+            <div><h2>Your next spelling session</h2><p>A few words today. A little more confidence tomorrow.</p></div>
+          </div>
+          <fieldset className="quiz-round-sizes" aria-describedby="quiz-round-help">
+            <legend>How many words?</legend>
+            <p id="quiz-round-help">Choose a quick round or settle in for a challenge.</p>
+            <div className="quiz-round-options">
+              {roundSizes.map(count => <label key={count} className="quiz-round-option">
+                <input type="radio" name="totalQuestions" value={count} checked={Number(totalQuestions) === count}
+                  onChange={() => setTotalQuestions(count)} />
+                <span className="quiz-round-tile"><span className="quiz-round-check"><LibraryIcon name="check" /></span><strong>{count}</strong><span>words</span></span>
+              </label>)}
+            </div>
+          </fieldset>
+          {!availableCount ? <p className="quiz-availability" role="status">No words are ready for an audio quiz yet. Explore the word library to find more words.</p>
+            : Number(totalQuestions) > availableCount && <p className="quiz-availability" role="status">This round will use all {availableCount} available {availableCount === 1 ? "word" : "words"}.</p>}
+          <div className="quiz-start-area">
+            <p><strong>{roundCount} {roundCount === 1 ? "word" : "words"}</strong><span aria-hidden="true">·</span>At your own pace</p>
+            <button className="quiz-start-button" onClick={handleStartQuiz} disabled={!availableCount}>Start quiz <LibraryIcon name="arrow" /></button>
+            <span className="quiz-sound-note"><LibraryIcon name="speaker" /> Make sure your sound is on.</span>
+          </div>
+        </div>
+
+        <aside className="quiz-guide" aria-labelledby="quiz-guide-title">
+          <p className="quiz-eyebrow">SIMPLE STEPS. STRONGER SPELLING.</p>
+          <h2 id="quiz-guide-title">Find your rhythm.</h2>
+          <ol>
+            <li><span className="quiz-step-number">01</span><div><h3>Listen closely</h3><p>Hear a word pronounced. Replay it whenever you need.</p></div></li>
+            <li><span className="quiz-step-number">02</span><div><h3>Make it yours</h3><p>Type what you hear, then press <kbd>Enter</kbd> to move on.</p></div></li>
+            <li><span className="quiz-step-number">03</span><div><h3>Learn as you go</h3><p>Review your score and spellings at the end of your round.</p></div></li>
+          </ol>
+          <div className="quiz-guide-footer"><LibraryIcon name="check" /><p>No timer. No rush.<br /><strong>Just a little progress.</strong></p></div>
+        </aside>
+      </div>
+      <p className="quiz-setup-footer">Progress starts with one word. You’ve got this.</p>
+    </section>
   );
 }

@@ -18,9 +18,8 @@ export default function Quiz() {
   const [answerMap, setAnswerMap] = useState({});
   const [answer, setAnswer] = useState("");
   const [currentWord, CurrentWord] = useState();
-  const [practiceSet, setPracticeSet] = useState("spelling");
   const [quizQuestions, setQuizQuestions] = useState([]);
-  const eligibleWords = useMemo(() => getQuizPool(allWords, practiceSet), [allWords, practiceSet]);
+  const eligibleWords = useMemo(() => getQuizPool(allWords, "spelling"), [allWords]);
   const questionCount = quizQuestions.length;
 
   useEffect(() => stopSpeaking, []);
@@ -116,19 +115,15 @@ export default function Quiz() {
     );
   }
 
+  if (!quizRunning) {
+    return <QuizNew totalQuestions={totalQuestions} setTotalQuestions={setTotalQuestions}
+      handleStartQuiz={handleStartQuiz} availableCount={eligibleWords.length} />;
+  }
+
   return (
     <div className="min-h-[calc(100vh-73px)] flex items-center justify-center p-6">
       <div className="max-w-3xl w-full">
-        {!quizRunning ? (
-          <QuizNew
-            totalQuestions={totalQuestions}
-            setTotalQuestions={setTotalQuestions}
-            handleStartQuiz={handleStartQuiz}
-            practiceSet={practiceSet}
-            setPracticeSet={setPracticeSet}
-            availableCount={eligibleWords.length}
-          />
-        ) : words.length > 0 ? (
+        {words.length > 0 ? (
           <div className="glass rounded-3xl p-8 md:p-12 shadow-2xl animate-fade-in">
             {/* Progress indicator */}
             <div className="mb-8">

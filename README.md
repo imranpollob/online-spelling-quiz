@@ -1,4 +1,6 @@
-# 📝 Spelling Quiz
+<img src="public/brand-logo.png" alt="Online Spelling Quiz logo" width="96" height="96" />
+
+# Spelling Quiz
 
 A React-based spelling quiz application with Firebase backend and 850 curated default entries.
 
@@ -6,6 +8,15 @@ A React-based spelling quiz application with Firebase backend and 850 curated de
 ![](screenshot2.png)
 ![](screenshot3.png)
 
+
+## Branding
+
+The original logo is [online-spelling-quiz.png](online-spelling-quiz.png). Header,
+favicon, Apple touch, installed-app, and social preview assets are generated from
+that file. To regenerate them, run `python3 scripts/generate-brand-assets.py`
+with Pillow and the DejaVu Sans fonts installed. The app build uses the committed
+assets and does not require Python. Maskable icons have their own opaque,
+padded export so launchers can crop them safely.
 
 ## Features
 
@@ -137,9 +148,9 @@ to the app, imports, and the maintenance script.
   browseable and playable, but are excluded from audio-only quizzes. Definitions
   or sentence exercises for these entries are not implemented yet. Context
   flags are a curated safeguard, not an exhaustive pronunciation dictionary.
-- Core spelling, beginner warm-up, and vocabulary challenge are separate quiz
-  sets. A round uses the actual number of available questions, and result rows
-  and summary scores both accept the same standard variants.
+- Quizzes use the core spelling collection. Warm-up and vocabulary entries remain
+  available in the word library. A round uses the actual number of available
+  questions, and result rows and summary scores accept the same standard variants.
 - Difficulty is an editorial learning aid based on explicit foundation and
   challenge lists, not a CEFR level or a measured misspelling-frequency rank.
 - The 20 additions are accidentally, broccoli, zucchini, caffeine, refrigerator,
